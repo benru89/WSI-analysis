@@ -25,7 +25,7 @@ import pickle
 '''
     Global variables / constants
 '''
-PATCH_SIZE = 500
+PATCH_SIZE = 256
 CHANNEL = 3
 CLASS_NUM = 2
 
@@ -216,7 +216,7 @@ def get_contours(cont_img, rgb_image_shape):
     print('contour image dimension: ',cont_img.shape)
     
     contour_coords = []
-    _, contours, _ = cv2.findContours(cont_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(cont_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     boundingBoxes = [cv2.boundingRect(c) for c in contours]
 
@@ -1294,62 +1294,36 @@ def extract_all_Plus(slide_path, anno_path, section_list, pnflag=True, level=1):
     p.join()
 
 '''
-def capextract(slide_name, dataset_dir='./dataset_patches/', level_dir='/level1/'):
+def capextract(slide_path, anno_path, level = 1, dataset_dir='./dataset_patches/'):
 
-    pnflag=False
-
-    training_dir='../data-wsi/camelyon17/training/'
-    anno_dir = '../data-wsi/camelyon17/lesion_annotations_new/'
-
+    level_dir='/level' + str(level) + '/'
+    
+    pnflag=True
+    
     dir_prefix='./dataset_patches/' 
-    dir_end='/level1/patches/'
-
-    slideEnd='.tif'
-    annoEnd='.xml'
-
-    slide_path = training_dir + slide_name + slideEnd
-    anno_path = anno_dir + slide_name + annoEnd
+    dir_end=level_dir+ 'patches/'
 
     print("SSS: ", slide_path)
     
+    section_list = ['00', '01', '02', '03', \
+                    '10', '11', '12', '13', \
+                    '20', '21', '22', '23', \
+                    '30', '31', '32', '33'] 
+    
     try:
-        section_list0 = ['00', '01', '02', '03']
-        img_sample_, wsi_img = extract_all_Plus(slide_path, anno_path, section_list0, pnflag, level=1)
+
+        img_sample_, wsi_img = extract_all_Plus(slide_path, anno_path, section_list, pnflag, level=level)
         del img_sample_
         del wsi_img
         gc.collect()
         
-        section_list1 = ['10', '11', '12', '13']
-        img_sample_, wsi_img = extract_all_Plus(slide_path, anno_path, section_list1, pnflag, level=1)
-        del img_sample_
-        del wsi_img
-        gc.collect()
-
-        print('sec list 2\n\n')
-        section_list2 = ['20', '21', '22', '23']
-        img_sample_, wsi_img = extract_all_Plus(slide_path, anno_path, section_list2, pnflag, level=1)
-        del img_sample_
-        del wsi_img
-        gc.collect()
-
-        print('sec list 3\n\n')    
-        section_list3 = ['30', '31', '32', '33']
-        img_sample_, wsi_img = extract_all_Plus(slide_path, anno_path, section_list3, pnflag, level=1)
-        del img_sample_
-        del wsi_img
-        gc.collect()  
-
-    except:
-        print("???:", slide_name)
+    except Exception as e:
+        print(e, slide_path)
 
     else:
 
-        section_list = ['00', '01', '02', '03', \
-                        '10', '11', '12', '13', \
-                        '20', '21', '22', '23', \
-                        '30', '31', '32', '33']  
-
+        slide_name = slide_path.split('/')[-1].split('.')[0]
+        
         pd_all, pd_tumor, positive_patches_path, negative_patches_path = \
-        preprocessingAndanalysis(slide_name, section_list, dataset_dir, level_dir, \
-                                 positivethresh=0)
+        preprocessingAndanalysis(slide_name, section_list, dataset_dir = dataset_dir, level_dir = level_dir, positivethresh=0)
 
