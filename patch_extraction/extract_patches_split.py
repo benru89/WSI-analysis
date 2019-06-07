@@ -129,7 +129,7 @@ def read_wsi(wsi_obj, level, mag_factor, sect):
 
     # level1 dimension
     width_whole, height_whole = wsi_obj.level_dimensions[level]
-    print("level1 dimension (width, height): ", width_whole, height_whole)
+    print("level" + level + "dimension (width, height): ", width_whole, height_whole)
 
     # section size after split
     width_split, height_split = width_whole // SPLIT, height_whole // SPLIT
